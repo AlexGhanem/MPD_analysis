@@ -393,6 +393,8 @@ arrest_content = dbc.Container(
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
+server = app.server
+
 color_map = {'BLACK':'#150485','WHITE':'#F2A07B','UNK':'#C62A88','ASIAN':'#FF4301', 'UNKNOWN':'#C62A88'}
 
 app.layout = dbc.Container(
