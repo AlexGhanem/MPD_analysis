@@ -21,9 +21,9 @@ pd.options.plotting.backend = "plotly"
 
 # Time to load the date!!!
 
-districts_geo = gp.read_file('Data\Police_Districts\Police_Districts.shp')
-data_full = pd.read_csv("Data\stop_data.csv")
-df_arrests = pd.read_csv(r"Data\arrest_data.csv")
+districts_geo = gp.read_file('./Data/Police_Districts/Police_Districts.shp')
+data_full = pd.read_csv("./Data/stop_data.csv")
+df_arrests = pd.read_csv(r"./Data/arrest_data.csv")
 
 #dropping na values from important columns. they each have less than 0.01% na
 data_full.dropna(subset=['stop_district','stop_time','stop_duration_minutes','race_ethnicity'], inplace=True)
