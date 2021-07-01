@@ -21,52 +21,9 @@ pd.options.plotting.backend = "plotly"
 
 # Time to load the date!!!
 
-
-data_0101_0314 = pd.read_csv("./Data/Stop Data_01012020-03142020 (Part 1 of 2).csv")
-data_0315_0630 = pd.read_csv('./Data/Stop Data_03152020-06302020 (Part 2 of 2).csv')
-districts_geo = gp.read_file('./Data/Police_Districts/Police_Districts.shp')
-
-
-df_2013 = pd.read_csv('./Data/Arrests 2013 Public.csv')
-df_2014 = pd.read_csv('./Data/Arrests 2014 Public.csv')
-df_2015 = pd.read_csv('./Data/Arrests 2015 Public.csv')
-df_2016 = pd.read_csv('./Data/Arrests 2016 Public.csv')
-df_2017 = pd.read_csv('./Data/Arrests 2017 Public.csv')
-df_2018 = pd.read_csv('./Data/Arrests by Year, 2018.csv')
-df_2019 = pd.read_csv('./Data/Arrests by Year, 2019.csv')
-df_2020 = pd.read_csv('./Data/Arrests by Year 2020.csv')
-
-
-data_full = data_0101_0314.append(data_0315_0630)
-
-
-df_arrests = df_2013.append([df_2014, df_2015,df_2016,df_2017,df_2018,df_2019,df_2020],ignore_index=True )
-
-
-#Cleaning the data
-
-#dropping columns with mostly missing values and/ or irrelevant stats for our study
-data_full.drop(['ccn_anonymized','person_search_reason_consent',
-       'person_search_reason_probable_cause',
-       'person_protective_pat_down_reason',
-       'person_search_reason_warrant', 'property_search_reason_consent',
-       'property_search_reason_probable_cause',
-       'property_protective_pat_down_reason',
-       'property_search_reason_warrant', 'property_search_object_consent',
-       'property_search_object_probable_cause',
-       'property_protective_pat_down_object',
-       'property_search_object_warrant',
-       'person_search_object_seized_consent',
-       'person_search_object_seized_probable_cause',
-       'person_protective_pat_down_object_seized',
-       'person_search_object_seized_warrant',
-       'property_search_object_seized_consent',
-       'property_search_object_seized_probable_cause',
-       'property_protective_pat_down_object_seized',
-       'property_search_object_seized_warrant', 'voided_tickets', 'ticket_count',
-       'warning_count', 'void_count'], axis =1, inplace=True)
-
-
+districts_geo = gp.read_file('Data\Police_Districts\Police_Districts.shp')
+data_full = pd.read_csv("Data\stop_data.csv")
+df_arrests = pd.read_csv(r"Data\arrest_data.csv")
 
 #dropping na values from important columns. they each have less than 0.01% na
 data_full.dropna(subset=['stop_district','stop_time','stop_duration_minutes','race_ethnicity'], inplace=True)
