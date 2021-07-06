@@ -169,7 +169,7 @@ age_form = html.Div(
 )
 
 
-stops_content = dbc.Container(
+stops_content = html.Div(
     [
           dbc.Card(
                         [
@@ -237,7 +237,7 @@ stops_content = dbc.Container(
                                                 )
                                             ]
                                         )
-                                    ]
+                                    ],
                                 ),
                                 dbc.Col(
                                     [
@@ -252,7 +252,7 @@ stops_content = dbc.Container(
                                                 )
                                             ]
                                         )
-                                    ]
+                                    ],
                                 ),
                             ]
                         )
@@ -263,7 +263,7 @@ stops_content = dbc.Container(
     ]
 )
 
-arrest_content = dbc.Container(
+arrest_content = html.Div(
     [
         dbc.Row(
             [
@@ -271,7 +271,6 @@ arrest_content = dbc.Container(
                     [
                         dbc.Card(
                         [
-                            dbc.CardHeader('Age filter'),
                             dbc.CardBody(
                                 [
                                     age_form,
@@ -327,7 +326,13 @@ arrest_content = dbc.Container(
                                         }
                                     ),
                                     dbc.Alert(
-                                        "Use the selection tools on the map to update the chart",
+                                        "Use the selection tools on the map to update the pie chart",
+                                        color='secondary',
+                                        dismissable=True,
+                                        is_open=True,
+                                        ),
+                                    dbc.Alert(
+                                        "Double click anywhere in the map to deselect",
                                         color='secondary',
                                         dismissable=True,
                                         is_open=True,
@@ -356,6 +361,8 @@ color_map = {'BLACK':'#150485','WHITE':'#F2A07B','UNK':'#C62A88','ASIAN':'#FF430
 
 app.layout = dbc.Container(
   [
+    html.H1("MPD Public Data Analysis", style={'text-align':'center','color':'#2A9FD6'}),
+    html.Br(),
     dbc.Tabs(
       [
         dbc.Tab(label='MPD Stops', tab_id='stops'),
