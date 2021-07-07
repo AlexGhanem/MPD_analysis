@@ -283,6 +283,12 @@ arrest_content = html.Div(
                             dbc.CardHeader("Selection Pie Chart"),
                             dbc.CardBody(
                                 [
+                                   html.Div(
+                                       [
+                                           html.P('Number of arrests selected: ', style={'display':'inline','font-size':'larger'}),
+                                           html.P(id='select_num',style={'color':'#2A9FD6','display':'inline','font-size':'larger'})
+                                       ]
+                                       ),
                                    dbc.RadioItems(
                                        id='choiceopie',
                                        options=[
@@ -323,7 +329,8 @@ arrest_content = html.Div(
                                             2018: '2018',
                                             2019: '2019',
                                             2020: '2020'
-                                        }
+                                        },
+                                        included=False,
                                     ),
                                     dbc.Alert(
                                         "Use the selection tools on the map to update the pie chart",
@@ -583,7 +590,10 @@ def update_map(y,min,max):
   return create_map(df)
     
 @app.callback(
-  Output('sliceopie', 'figure'),
+  [
+      Output('sliceopie', 'figure'),
+      Output('select_num','children')
+  ],
   [
     Input('year_slider','value'), 
     Input('data_min','value'), 
@@ -606,8 +616,10 @@ def update_pie(y,min,max,choice,selectedData):
       lon.append(point['lon'])
       
     df=df[(df['Arrest Latitude'].isin(lat)) & (df['Arrest Longitude'].isin(lon))]
+    
+  s = df['Age'].size
+  return create_pie(df,choice), s
 
-  return create_pie(df,choice)
 
 
 if __name__ == '__main__':
