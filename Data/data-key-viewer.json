@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "dash-app-318517",
+  "private_key_id": "2fdf4cdfc0455b0fb9a0c5d21225ae6bc869dab2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCwNrBaxm40rYlg\nhasVypkHe0KJVWbxdVGu7YualoJXIRVDc8hWk4YYIRjrydkicmQ1hyFZBmckNwfL\nuHRobiOgSEWUI9zLn7ubjZtkQKpb0BigopvEMBU0t0ZBkJ9waiAmMWyPQlY2GRZD\n8p0i+8/QzNDfPHwryEKxt7sYsFXsBk2roX/IdrWObpxFhabeA6DidilE7/ySs3AU\n8n6rLPetF8pCrHWRevXkNdu9CX7L6WD4nTBRYlFEaHjf9hVqhAxVbgXKj+d4s/EP\nsFKeERii5fS47qAKyviBTjFObpd6BL6RoJW8X9SK21py2Uyyz1hyVqNPwUxStcrw\nQ2hzpN4jAgMBAAECggEAAgCXhUmVrfTzNBEN/Mzhl+2PrK/TDK1ug1AV9atiPmF5\nKUBF0UmCHZxsaD62DiTCGHxl0izNUgQHHAqM4R67GOeBrgalbWErRy8iT61+hNsr\nno6eo7eK7+I86GVL9aMM/fLOWKR6EXCEwUtWX9revodBy9K4pcrjMY7/sOkr3q+R\nlXOQFTJTCxb8ieC3uED26L7u1BQ4/VWXsrzIfxl0Rpt3RN/Zx2lUxpkm39kWywdK\nd0zD+DKgUobDiMmTzSuzWFphOtWviMsyXDOdrmSzhkiTRYVK+0KuBeXkpwZsQkuM\nqC4Y5trO5I+uUjAaFdiFOH8itVilqrYh+NRNMDvGQQKBgQDp55FiYJz+9f/u9jQ9\nAllq1VKl60R3YJPGEOO29k7NrBcBuU71/3/ZHsc5SE7cI7aZw1fYLay4+HaU+ZnW\nxmhLjTDcTyxP+S+FEHLmKSIi7c08ua+R8lhp7XqSMI0NpNSa6CZ3NEa8U7qGe3kS\nx7tV5Ji8QDsdnEPQYCV4IxucJwKBgQDA3ABXnU7PR2IhWsiN351YnfZ2PQAbjutb\nGwdzY9iUZnzKVS0tM2hlIrElwle9VzDFD97TJSYNI5rpb03+JQ6K5bfGepDueFxb\nlWYHNRnS9mhL17axHmSasc7MiWTGFqiq7eGIzSFIQp52TFWrf4aUjt/0WL5NH+pU\nmPX3XVufpQKBgFjiLlT78azRPlhIJsGoSuJV/foe1P2oLX9um5nDL17orjVxfZft\nZ1/SWlJiL9VnnNQBbzgu4xvHDwi9cMA01R0gohiV3XjmcDBYd9EOgHJVe1BAH3+O\nYBqgq5sx5+fvYvsajMNvkhGun4rLEM8aJw4UuBWRMuWlo/9jCdoFPVCxAoGBAIZZ\n/KcMgDVn3hWsX6BuEfgE+wf9kNCh7JVoK/WXre4bw31UfwdJE8W4uD28uFC/p8rw\nNmNTMsHedvF9x5BvkkTyqObMxaBLGtP2LMCCnn3XiGqlWLDkomMd0Rmt8RUJ/fAt\njXs2o6PqPOfeX6P8T+235o4bMF8cB6ttb5QmZki9AoGAImh1dDp3U1ellckd8Uv7\nCiZtICznulg669AEhbfk6EUzo+FmPb5K8KtbZN6vefu+6iB+/pUy0veawmfSgDif\nX4ZFMydims7I9vbdMvXEWpdE3GCRSzcPuza0deZ7jaSF/LDyP2FynDohx2v68YsG\nHhoDX+QXoCmPtfZewvIgKOY=\n-----END PRIVATE KEY-----\n",
+  "client_email": "mpd-dash-database@dash-app-318517.iam.gserviceaccount.com",
+  "client_id": "101581588197111985667",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mpd-dash-database%40dash-app-318517.iam.gserviceaccount.com"
+}

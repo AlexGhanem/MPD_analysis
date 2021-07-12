@@ -14,16 +14,21 @@ import dash_bootstrap_components as dbc
 from itertools import cycle
 from dash.dependencies import Input, Output
 import json
-
+from google.cloud import bigquery
+from google.oauth2 import service_account
 
 pd.options.plotting.backend = "plotly"
 
+#Setting up the connection to the project's BigQuery SQL database
+creds = service_account.Credentials.from_service_account_file("./Data/data-key-viewer.json")
+project_id="dash-app-318517"
+client = bigquery.Client(credentials=creds, project=project_id)
 
 # Time to load the date!!!
 
 districts_geo = gp.read_file('./Data/Police_Districts/Police_Districts.shp')
-data_full = pd.read_csv("./Data/stop_data.csv")
-df_arrests = pd.read_csv(r"./Data/arrest_data.csv")
+df_arrests = client.query("select * from mpd_dash_database.arrests").to_dataframe()
+data_full = client.query("select * from mpd_dash_database.stops").to_dataframe()
 
 #dropping na values from important columns. they each have less than 0.01% na
 data_full.dropna(subset=['stop_district','stop_time','stop_duration_minutes','race_ethnicity'], inplace=True)
@@ -43,7 +48,7 @@ data_full['age']=data_full['age'].map(int)
 
 
 #creating a stop datetime column with date from both date and time columns for ease of analysis
-data_full['stop_datetime'] = pd.to_datetime(data_full['stop_date']+'T'+data_full['stop_time'], format= '%m/%d/%YT%H:%M')
+data_full['stop_datetime'] = pd.to_datetime(data_full['stop_date']+'T'+data_full['stop_time'], format= r'%Y-%m-%dT%H:%M')
 
 
 
@@ -86,7 +91,7 @@ hourly_count = df['stop_date'].resample('H').count()
 #creating an array with the counts of daily stops
 
 df = data_full[['stop_date','stop_duration_minutes']].copy()
-df['stop_date'] = pd.to_datetime(df['stop_date'], format='%m/%d/%Y')
+df['stop_date'] = pd.to_datetime(df['stop_date'], format='%Y-%m-%d')
 df.set_index('stop_date', inplace=True)
 daily_count = df['stop_duration_minutes'].resample('D').count()
 
@@ -97,8 +102,8 @@ daily_count['rolling avg'] = daily_count.rolling(7).mean()
 
 
 #formating the tieme data
-df_arrests['Arrest Hour'] = pd.to_datetime(df_arrests['Arrest Hour'],format='%H')
-df_arrests['Arrest Hour'] = df_arrests['Arrest Hour'].dt.strftime('%I %p')
+df_arrests['Arrest_Hour'] = pd.to_datetime(df_arrests['Arrest_Hour'],format='%H')
+df_arrests['Arrest_Hour'] = df_arrests['Arrest_Hour'].dt.strftime('%I %p')
 
 
 # #The Dashboard
@@ -521,21 +526,21 @@ def update_selected_data(reset_btn):
 
 def create_map(df):
     map_fig = px.scatter_mapbox(
-        df, lat='Arrest Latitude', lon='Arrest Longitude', 
-        color='Defendant Race',mapbox_style='carto-darkmatter', 
+        df, lat='Arrest_Latitude', lon='Arrest_Longitude', 
+        color='Defendant_Race',mapbox_style='carto-darkmatter', 
         zoom=12,opacity=0.8,
-        category_orders={"Defendant Race":['BLACK','WHITE','ASIAN','UNK']},
+        category_orders={"Defendant_Race":['BLACK','WHITE','ASIAN','UNK']},
         template=template, color_discrete_map=color_map,
         hover_data={
-            'Defendant Race':True,
-            'Defendant Ethnicity':True,
-            'Defendant Sex':True,
-            'Arrest Category':True,
+            'Defendant_Race':True,
+            'Defendant_Ethnicity':True,
+            'Defendant_Sex':True,
+            'Arrest_Category':True,
             'Age':True,
-            'Arrest Latitude':False,
-            'Arrest Longitude':False,
-            'Arrest Date':True,
-            'Arrest Hour':True,
+            'Arrest_Latitude':False,
+            'Arrest_Longitude':False,
+            'Arrest_Date':True,
+            'Arrest_Hour':True,
 
             }
         )
@@ -548,15 +553,15 @@ def create_map(df):
 def create_pie(df, choice):
     if choice == 1:
         pie = px.pie(
-            df, names='Defendant Race', color='Defendant Race',
+            df, names='Defendant_Race', color='Defendant_Race',
             color_discrete_map=color_map,
             )
         
     elif(choice==2):
-        dfg = df[df['Arrest Category']!= 'Other Crimes'].groupby(['Arrest Category']).size().to_frame ().sort_values(
+        dfg = df[df['Arrest_Category']!= 'Other Crimes'].groupby(['Arrest_Category']).size().to_frame ().sort_values(
         [0], ascending=False).head(10).reset_index()
         pie=px.pie(
-            dfg,names='Arrest Category', values=0,
+            dfg,names='Arrest_Category', values=0,
             labels={'0':'Count'},color_discrete_sequence=px.colors.qualitative.T10
             )
 
@@ -582,7 +587,7 @@ def create_pie(df, choice):
     ]
 )
 def update_map(y,min,max):
-  df = df_arrests[df_arrests['Arrest Year']==y]
+  df = df_arrests[df_arrests['Arrest_Year']==y]
     
   df = df[df['Age'] >= min]
   df = df[df['Age'] <= max]
@@ -605,7 +610,7 @@ def update_map(y,min,max):
 def update_pie(y,min,max,choice,selectedData):
   lat=[]
   lon=[]
-  df = df_arrests[df_arrests['Arrest Year']==y]
+  df = df_arrests[df_arrests['Arrest_Year']==y]
     
   df = df[df['Age'] >= min]
   df = df[df['Age'] <= max]
@@ -615,7 +620,7 @@ def update_pie(y,min,max,choice,selectedData):
       lat.append(point['lat'])
       lon.append(point['lon'])
       
-    df=df[(df['Arrest Latitude'].isin(lat)) & (df['Arrest Longitude'].isin(lon))]
+    df=df[(df['Arrest_Latitude'].isin(lat)) & (df['Arrest_Longitude'].isin(lon))]
     
   s = df['Age'].size
   return create_pie(df,choice), s
