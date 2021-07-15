@@ -14,21 +14,13 @@ import dash_bootstrap_components as dbc
 from itertools import cycle
 from dash.dependencies import Input, Output
 import json
-from google.cloud import bigquery
-from google.oauth2 import service_account
 
 pd.options.plotting.backend = "plotly"
-
-#Setting up the connection to the project's BigQuery SQL database
-creds = service_account.Credentials.from_service_account_file("./Data/data-key-viewer.json")
-project_id="dash-app-318517"
-client = bigquery.Client(credentials=creds, project=project_id)
-
 # Time to load the date!!!
 
 districts_geo = gp.read_file('./Data/Police_Districts/Police_Districts.shp')
-df_arrests = client.query("select * from mpd_dash_database.arrests").to_dataframe()
-data_full = client.query("select * from mpd_dash_database.stops").to_dataframe()
+data_full = pd.read_csv("./Data/stop_data.csv")
+df_arrests = pd.read_csv(r"./Data/arrest_data.csv")
 
 #dropping na values from important columns. they each have less than 0.01% na
 data_full.dropna(subset=['stop_district','stop_time','stop_duration_minutes','race_ethnicity'], inplace=True)
@@ -101,12 +93,13 @@ daily_count = df['stop_duration_minutes'].resample('D').count()
 daily_count['rolling avg'] = daily_count.rolling(7).mean()
 
 
-#formating the tieme data
+#formating the time data
 df_arrests['Arrest_Hour'] = pd.to_datetime(df_arrests['Arrest_Hour'],format='%H')
 df_arrests['Arrest_Hour'] = df_arrests['Arrest_Hour'].dt.strftime('%I %p')
 
 
-# #The Dashboard
+
+#The Dashboard
 
 
 config = {'displayModeBar':False}
