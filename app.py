@@ -236,6 +236,8 @@ stops_content = html.Div(
                                             ]
                                         )
                                     ],
+                                    width = 4,
+                                    style={'margin-left':'15%'}
                                 ),
                                 dbc.Col(
                                     [
@@ -251,6 +253,8 @@ stops_content = html.Div(
                                             ]
                                         )
                                     ],
+                                    width = 4,
+                                    
                                 ),
                             ]
                         )
@@ -303,7 +307,7 @@ arrest_content = html.Div(
                         ),
                         dbc.Card(),
                     ],
-                    width = 4,
+                    width = 3,
                 ),
                 dbc.Col(
                     [
@@ -364,9 +368,10 @@ server = app.server
 
 color_map = {'BLACK':'#150485','WHITE':'#F2A07B','UNK':'#C62A88','ASIAN':'#FF4301', 'UNKNOWN':'#C62A88'}
 
-app.layout = dbc.Container(
+app.layout = html.Div(
   [
-    html.H1("MPD Public Data Analysis", style={'text-align':'center','color':'#2A9FD6'}),
+    html.Br(),
+    html.H1("MPD Public Data Analysis", style={'color':'#2A9FD6'}),
     html.Br(),
     dbc.Tabs(
       [
@@ -388,37 +393,45 @@ def render_output(active_tab):
         return arrest_content
 
 @app.callback(
-    [Output('datetime','figure'), Output('DC map','figure')],
-    [Input('district-dropdown', 'value'), Input('time format', 'value')])
+    Output('datetime','figure'), Input('time format', "value"))
+def updat_timeseries(timeperiod):
+    if(timeperiod=='hourly'):
+        timeseries= px.bar(hourly_count, color_discrete_sequence=['#B14D8E'], labels={'stop_time':'','stop_date':'count' })
+        timeseries.update_xaxes(tickformat='%I %p')
+        timeseries.update_layout(showlegend=False)
 
-def update_output(value, timeperiod):
-
-  if(timeperiod=='hourly'):
-    timeseries= px.bar(hourly_count, color_discrete_sequence=['#B14D8E'], labels={'stop_time':'','stop_date':'count' })
-    timeseries.update_xaxes(tickformat='%I %p')
-    timeseries.update_layout(showlegend=False)
-
-  else:
-    if(timeperiod == 'daily'):
-      timeseries = px.line(daily_count,labels={'stop_date':''} ,color_discrete_sequence=['#D8A6C6'])
-      timeseries.add_scatter(x=daily_count.index, y=daily_count['rolling avg']) 
-      names = cycle(['Daily Count', '7-day Rolling Average'])
-      timeseries.for_each_trace(lambda t:  t.update(name = next(names)))
-      
-    elif(timeperiod =='day of the week'):
-      timeseries = px.histogram(data_full['weekdays'],
-       category_orders={'value':['Monday', 'Tuesday', 'Wednesday',  'Thursday', 'Friday', 'Saturday', 'Sunday']},
-       labels={'value':'days of the week'}, 
-       color_discrete_sequence=['#B14D8E'], )
-      timeseries.update_layout(showlegend=False)
+    else:
+        if(timeperiod == 'daily'):
+            timeseries = px.line(daily_count,labels={'stop_date':''} ,color_discrete_sequence=['#D8A6C6'])
+            timeseries.add_scatter(x=daily_count.index, y=daily_count['rolling avg']) 
+            names = cycle(['Daily Count', '7-day Rolling Average'])
+            timeseries.for_each_trace(lambda t:  t.update(name = next(names)))
+        
+        elif(timeperiod =='day of the week'):
+            timeseries = px.histogram(data_full['weekdays'],
+            category_orders={
+                'value':['Monday', 'Tuesday', 'Wednesday',  'Thursday', 'Friday', 'Saturday', 'Sunday']
+                },
+            labels={'value':'days of the week'}, 
+            color_discrete_sequence=['#B14D8E'], 
+            )
+            timeseries.update_layout(showlegend=False)
 
 
-  timeseries.update_layout({
+    timeseries.update_layout({
     'plot_bgcolor': 'rgba(0, 0, 0, 0)',
     'paper_bgcolor': 'rgba(0, 0, 0, 0)',
-    }, template= template)
-  timeseries.update_traces(hovertemplate=None)
+    }, template= template
+    )
 
+    timeseries.update_traces(hovertemplate=None)
+
+    return timeseries
+
+@app.callback(
+    Output('DC map','figure'),
+    Input('district-dropdown', 'value'))
+def update_output(value):
   if value =='count_child':
     labels = {'count_child':'count'}
   elif value == 'count_adult':
@@ -451,8 +464,7 @@ def update_output(value, timeperiod):
         geo=dict(bgcolor= 'rgba(48,48,48,48)'), 
         clickmode='event+select'
       )
-  
-  return timeseries,fig
+  return fig
 
 def create_histogram(metric, df, d):
 
