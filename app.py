@@ -4,9 +4,11 @@
 
 # We will import all necessary libraries
 
+from dash_bootstrap_components._components.CardBody import CardBody
 import pandas as pd
 import geopandas as gp
 import plotly.express as px
+import plotly.graph_objects as go
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -14,6 +16,7 @@ import dash_bootstrap_components as dbc
 from itertools import cycle
 from dash.dependencies import Input, Output
 import json
+from datetime import datetime, timedelta
 
 pd.options.plotting.backend = "plotly"
 # Time to load the date!!!
@@ -97,8 +100,6 @@ daily_count['rolling avg'] = daily_count.rolling(7).mean()
 df_arrests['Arrest_Hour'] = pd.to_datetime(df_arrests['Arrest_Hour'],format='%H')
 df_arrests['Arrest_Hour'] = df_arrests['Arrest_Hour'].dt.strftime('%I %p')
 
-
-
 #The Dashboard
 
 
@@ -126,38 +127,35 @@ age_form = html.Div(
         dbc.Label('Age Filter'),
         dbc.Row(
             [
-                dbc.Col(
-                    dbc.FormGroup(
-                        [
-                            dbc.Input(
-                                type="number",
-                                id="data_min",
-                                placeholder="min",
-                                min=18,
-                                max=120,
-                                step=1,
-                                value=18,
-                                style={"width": 75,},
-                            ),
-                        ]
-                    ),
-                    width=4,
+                dcc.Markdown('From ',style={'margin-top':'3%','margin-left':'2%', 'margin-right':'2%'}),
+                dbc.FormGroup(
+                    [
+                        dbc.Input(
+                            type="number",
+                            id="data_min",
+                            placeholder="min",
+                            min=18,
+                            max=120,
+                            step=1,
+                            value=18,
+                            style={"width": 75,},
+                        ),
+                    ]
                 ),
-                dbc.Col(
-                    dbc.FormGroup(
-                        [
-                            dbc.Input(
-                                type="number",
-                                id="data_max",
-                                placeholder="max",
-                                min=18,
-                                max=120,
-                                step=1,
-                                value=120,
-                                style={"width": 75},
-                            ),
-                        ]
-                    ),
+                dcc.Markdown(' to ', style={'margin-top':'3%','margin-left':'2%', 'margin-right':'2%'}),
+                dbc.FormGroup(
+                    [
+                        dbc.Input(
+                            type="number",
+                            id="data_max",
+                            placeholder="max",
+                            min=18,
+                            max=120,
+                            step=1,
+                            value=120,
+                            style={"width": 75},
+                         ),
+                    ]
                 ),
             ],
             form=True,
@@ -280,17 +278,27 @@ arrest_content = html.Div(
                             ),
                         ]
                         ),
+                        html.Br(),
+                        dbc.Card(
+                            dbc.CardBody(
+
+                                html.Div(
+                                       [
+                                           html.P('Number of arrests selected: ', style={'display':'inline','font-size':'larger'}),
+                                           html.P(id='select_num',style={'color':'#2A9FD6','display':'inline','font-size':'larger'}),
+                                           html.Br(),
+                                           html.P('Date range: ', style={'display':'inline','font-size':'larger'}),
+                                           html.P(id='select_dates',style={'color':'#2A9FD6','display':'inline','font-size':'larger'})
+                                       ]
+                                       ),
+                            )
+                        ),
+                        html.Br(),
                         dbc.Card(
                         [
                             dbc.CardHeader("Selection Pie Chart"),
                             dbc.CardBody(
                                 [
-                                   html.Div(
-                                       [
-                                           html.P('Number of arrests selected: ', style={'display':'inline','font-size':'larger'}),
-                                           html.P(id='select_num',style={'color':'#2A9FD6','display':'inline','font-size':'larger'})
-                                       ]
-                                       ),
                                    dbc.RadioItems(
                                        id='choiceopie',
                                        options=[
@@ -349,6 +357,9 @@ arrest_content = html.Div(
                                     dbc.Spinner(
                                         dcc.Graph(id='arrest_map')
                                     ),
+                                    dbc.Spinner(
+                                        dcc.Graph(id='arrests_time', config=config)
+                                    ),
                                 ]
                             ),
                         ],
@@ -356,6 +367,7 @@ arrest_content = html.Div(
                     ),
                          dbc.Card(),
                     ],
+                    width = 9,
                 ),
             ]
         )
@@ -371,7 +383,7 @@ color_map = {'BLACK':'#150485','WHITE':'#F2A07B','UNK':'#C62A88','ASIAN':'#FF430
 app.layout = html.Div(
   [
     html.Br(),
-    html.H1("MPD Public Data Analysis", style={'color':'#2A9FD6'}),
+    html.H2("MPD Public Data Analysis", style={'color':'#2A9FD6'}),
     html.Br(),
     dbc.Tabs(
       [
@@ -523,6 +535,36 @@ def update_histogram(clickData, metric):
 
   return create_histogram(metric, df, d)
 
+@app.callback(
+    Output("arrests_time",'figure'), Input('year_slider', 'value')
+    )
+def update_time(year):
+    labels = {'Arrest_Date':'count', 'index':'date'}
+    df = df_arrests[df_arrests['Arrest_Year'] == year]
+    df['Arrest_Date'] = pd.to_datetime(df['Arrest_Date'], dayfirst=True)
+    daily_count_arrests = df['Arrest_Date'].dt.date.value_counts().sort_index().reset_index()
+    daily_count_arrests.set_index('index', inplace=True)
+    daily_count_arrests['rolling avg'] = daily_count_arrests.rolling(7).mean()
+    arrests_timeseries =px.line(daily_count_arrests,daily_count_arrests.index ,'Arrest_Date', labels=labels, color_discrete_sequence=['#2A9FD6'])
+    arrests_timeseries.add_scatter(x=daily_count_arrests.index, y=daily_count_arrests['rolling avg'], name='7-day avg')
+    arrests_timeseries.update_layout(
+        {
+        'plot_bgcolor': 'rgba(0, 0, 0, 0)',
+        'paper_bgcolor': 'rgba(0, 0, 0, 0)',
+    },
+    template= template,
+    xaxis=dict(
+        rangeslider=dict(
+            visible=True
+        ),
+        showgrid=False,
+        title=''
+    ),
+    height=400,
+    margin = dict(t = 0, b = 0, l = 0),
+    )
+    return arrests_timeseries
+
 @app.callback(Output("DC map", "clickData"), [Input('d_reset','n_clicks')])
 def update_selected_data(reset_btn):
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
@@ -546,8 +588,8 @@ def create_map(df):
             'Arrest_Longitude':False,
             'Arrest_Date':True,
             'Arrest_Hour':True,
-
-            }
+            },
+        height = 300
         )
     map_fig.update_layout(
         showlegend=False, 
@@ -588,52 +630,70 @@ def create_pie(df, choice):
     [
         Input('year_slider','value'), 
         Input('data_min','value'), 
-        Input('data_max','value')
+        Input('data_max','value'),
+        Input('arrests_time','relayoutData')
     ]
 )
-def update_map(y,min,max):
-  df = df_arrests[df_arrests['Arrest_Year']==y]
-    
-  df = df[df['Age'] >= min]
-  df = df[df['Age'] <= max]
+def update_map(y,min,max, selectedTime):
+    df = df_arrests[df_arrests['Arrest_Year']==y]
+        
+    df = df[df['Age'] >= min]
+    df = df[df['Age'] <= max]
 
-  return create_map(df)
+    if('xaxis.range' in selectedTime):
+        min_time = selectedTime['xaxis.range'][0].split(' ')[0]
+        max_time = selectedTime['xaxis.range'][1].split(' ')[0]
+        df = df[df['Arrest_Date'] >= min_time]
+        df = df[df['Arrest_Date'] <= max_time]
+
+    return create_map(df)
     
 @app.callback(
   [
       Output('sliceopie', 'figure'),
-      Output('select_num','children')
+      Output('select_num','children'),
+      Output('select_dates','children')
   ],
   [
     Input('year_slider','value'), 
     Input('data_min','value'), 
     Input('data_max','value'), 
     Input('choiceopie','value'),
-    Input('arrest_map','selectedData')
+    Input('arrest_map','selectedData'),
+    Input('arrests_time', 'relayoutData')
   ]
 )
-def update_pie(y,min,max,choice,selectedData):
-  lat=[]
-  lon=[]
-  df = df_arrests[df_arrests['Arrest_Year']==y]
-    
-  df = df[df['Age'] >= min]
-  df = df[df['Age'] <= max]
+def update_pie(y,min,max,choice,selectedData, selectedTime):
+    lat=[]
+    lon=[]
+    date_range =[]
+    df = df_arrests[df_arrests['Arrest_Year']==y]
+        
+    df = df[df['Age'] >= min]
+    df = df[df['Age'] <= max]
 
-  if(selectedData):
-    for point in selectedData['points']:
-      lat.append(point['lat'])
-      lon.append(point['lon'])
-      
-    df=df[(df['Arrest_Latitude'].isin(lat)) & (df['Arrest_Longitude'].isin(lon))]
+    if(selectedData):
+        for point in selectedData['points']:
+            lat.append(point['lat'])
+            lon.append(point['lon'])
+        
+        df=df[(df['Arrest_Latitude'].isin(lat)) & (df['Arrest_Longitude'].isin(lon))]
     
-  s = df['Age'].size
-  return create_pie(df,choice), s
+    if('xaxis.range' in selectedTime):
+        min_time = selectedTime['xaxis.range'][0].split(' ')[0]
+        max_time = selectedTime['xaxis.range'][1].split(' ')[0]
+        df = df[df['Arrest_Date'] >= min_time]
+        df = df[df['Arrest_Date'] <= max_time]
+
+    s = df['Age'].size
+    dates = '{} to {}'.format(datetime.strftime(datetime.strptime(df['Arrest_Date'].min(), r'%Y-%m-%d'),'%B %d, %Y'), datetime.strftime(datetime.strptime(df['Arrest_Date'].max(), r'%Y-%m-%d'),'%B %d, %Y'))
+    
+    return create_pie(df,choice), s, dates
 
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
 
 
