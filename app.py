@@ -5,6 +5,7 @@
 # We will import all necessary libraries
 
 from dash_bootstrap_components._components.CardBody import CardBody
+from dash_bootstrap_components._components.CardHeader import CardHeader
 import pandas as pd
 import geopandas as gp
 import plotly.express as px
@@ -164,10 +165,9 @@ age_form = html.Div(
     ]
 )
 
-
 stops_content = html.Div(
     [
-          dbc.Card(
+        dbc.Card(
                         [
                             dbc.CardHeader('Stops by Time Data'),
                             dbc.CardBody(
@@ -191,7 +191,7 @@ stops_content = html.Div(
                             )
                         ],
                     ),
-
+        html.Br(),
         dbc.Card(
             [
                 dbc.CardHeader('Interactive Map and Descriptive Chart'),
@@ -270,48 +270,48 @@ arrest_content = html.Div(
                 dbc.Col(
                     [
                         dbc.Card(
-                        [
-                            dbc.CardBody(
-                                [
-                                    age_form,
-                                ]
-                            ),
-                        ]
+                            [
+                                dbc.CardBody(
+                                    [
+                                        age_form,
+                                    ]
+                                ),
+                            ]
                         ),
                         html.Br(),
                         dbc.Card(
                             dbc.CardBody(
 
                                 html.Div(
-                                       [
-                                           html.P('Number of arrests selected: ', style={'display':'inline','font-size':'larger'}),
-                                           html.P(id='select_num',style={'color':'#2A9FD6','display':'inline','font-size':'larger'}),
-                                           html.Br(),
-                                           html.P('Date range: ', style={'display':'inline','font-size':'larger'}),
-                                           html.P(id='select_dates',style={'color':'#2A9FD6','display':'inline','font-size':'larger'})
-                                       ]
-                                       ),
+                                    [
+                                        html.P('Number of arrests selected: ', style={'display':'inline','font-size':'larger'}),
+                                        html.P(id='select_num',style={'color':'#2A9FD6','display':'inline','font-size':'larger'}),
+                                        html.Br(),
+                                        html.P('Date range: ', style={'display':'inline','font-size':'larger'}),
+                                        html.P(id='select_dates',style={'color':'#2A9FD6','display':'inline','font-size':'larger'})
+                                    ]
+                                ),
                             )
                         ),
                         html.Br(),
                         dbc.Card(
-                        [
-                            dbc.CardHeader("Selection Pie Chart"),
-                            dbc.CardBody(
-                                [
-                                   dbc.RadioItems(
-                                       id='choiceopie',
-                                       options=[
-                                           {'label': 'By Race', 'value':1},
-                                           {'label': 'By Charge', 'value': 2}
-                                       ],
-                                       value=1,
-                                       inline=True,
-                                   ),
-                                   dbc.Spinner(dcc.Graph(id='sliceopie')),
-                                ]
-                            ),
-                        ]
+                            [
+                                dbc.CardHeader("Selection Pie Chart"),
+                                dbc.CardBody(
+                                    [
+                                    dbc.RadioItems(
+                                        id='choiceopie',
+                                        options=[
+                                            {'label': 'By Race', 'value':1},
+                                            {'label': 'By Charge', 'value': 2}
+                                        ],
+                                        value=1,
+                                        inline=True,
+                                    ),
+                                    dbc.Spinner(dcc.Graph(id='sliceopie')),
+                                    ]
+                                ),
+                            ]
                         ),
                         dbc.Card(),
                     ],
@@ -320,52 +320,56 @@ arrest_content = html.Div(
                 dbc.Col(
                     [
                         dbc.Card(
-                        [
-                            dbc.CardHeader("DC Arrest Map"),
-                            dbc.CardBody(
-                                [
-                                    dbc.Label('Year picker'),
-                                    dcc.Slider(
-                                        id='year_slider',
-                                        min=2013,
-                                        max=2020,
-                                        value=2013,
-                                        marks={
-                                            2013: '2013',
-                                            2014: '2014',
-                                            2015: '2015',
-                                            2016: '2016',
-                                            2017: '2017',
-                                            2018: '2018',
-                                            2019: '2019',
-                                            2020: '2020'
-                                        },
-                                        included=False,
-                                    ),
-                                    dbc.Alert(
-                                        "Use the selection tools on the map to update the pie chart",
-                                        color='secondary',
-                                        dismissable=True,
-                                        is_open=True,
+                            [
+                                dbc.CardHeader("Timeseries and filter"),
+                                dbc.Label('Year picker', style={'margin-left':'2%'}),
+                                        dcc.Slider(
+                                            id='year_slider',
+                                            min=2013,
+                                            max=2020,
+                                            value=2013,
+                                            marks={
+                                                2013: '2013',
+                                                2014: '2014',
+                                                2015: '2015',
+                                                2016: '2016',
+                                                2017: '2017',
+                                                2018: '2018',
+                                                2019: '2019',
+                                                2020: '2020'
+                                            },
+                                            included=False,
                                         ),
-                                    dbc.Alert(
-                                        "Double click anywhere in the map to deselect",
-                                        color='secondary',
-                                        dismissable=True,
-                                        is_open=True,
+                                dbc.Alert(
+                                    "Use the smaller graph below to select a range within the chosen year",
+                                    color='secondary',
+                                    dismissable=True,
+                                    is_open=True,
+                                ),
+                                dbc.Spinner(
+                                    dcc.Graph(id='arrests_time', config=config)
+                                ),
+                            ]
+                         ),
+                         html.Br(),
+                         dbc.Card(
+                            [
+                                dbc.CardHeader("DC Arrest Map"),
+                                dbc.CardBody(
+                                    [
+                                        dbc.Alert(
+                                            "Use the selection tools on the map to update the pie chart. Double click anywhere in the map to deselect",
+                                            color='secondary',
+                                            dismissable=True,
+                                            is_open=True,
+                                            ),
+                                        dbc.Spinner(
+                                            dcc.Graph(id='arrest_map')
                                         ),
-                                    dbc.Spinner(
-                                        dcc.Graph(id='arrest_map')
-                                    ),
-                                    dbc.Spinner(
-                                        dcc.Graph(id='arrests_time', config=config)
-                                    ),
-                                ]
-                            ),
-                        ],
-
-                    ),
-                         dbc.Card(),
+                                    ]
+                                ),
+                            ],
+                        ),
                     ],
                     width = 9,
                 ),
@@ -474,7 +478,8 @@ def update_output(value):
         'paper_bgcolor': 'rgba(0, 0, 0, 0)',},
         dragmode=False, template=template,
         geo=dict(bgcolor= 'rgba(48,48,48,48)'), 
-        clickmode='event+select'
+        clickmode='event+select',
+        margin = dict(t = 0, b = 0, l = 0),
       )
   return fig
 
@@ -507,15 +512,29 @@ def create_histogram(metric, df, d):
     hist = px.pie(df[df[col]==num_map[col]], 
               names='race_ethnicity',
               color_discrete_sequence=px.colors.sequential.Magenta,labels=labels)
+    hist.update_traces(
+        textposition = 'inside', 
+        textinfo='percent+label',)
+    hist.update_layout(showlegend=False)
+
   else:
-      hist = px.pie(df[df[col]>16], 
-              names='race_ethnicity',
-              color_discrete_sequence=px.colors.sequential.Magenta,labels=labels)
+    hist = px.pie(df[df[col]>16], 
+        names='race_ethnicity',
+        color_discrete_sequence=px.colors.sequential.Magenta,labels=labels)
+    
+    hist.update_traces(
+        textposition = 'inside', 
+        textinfo='percent+label',)
+
 
   hist.update_layout({
-      'plot_bgcolor': 'rgba(0, 0, 0, 0)',
-      'paper_bgcolor': 'rgba(0, 0, 0, 0)',
-      }, template = template, title=title)
+        'plot_bgcolor': 'rgba(0, 0, 0, 0)',
+        'paper_bgcolor': 'rgba(0, 0, 0, 0)',
+        },
+        template = template, 
+        title=title,
+        margin = dict(b = 0, l = 0),
+)
   return hist
   
 @app.callback(Output('Hist','figure'), 
@@ -560,7 +579,7 @@ def update_time(year):
         showgrid=False,
         title=''
     ),
-    height=400,
+    height=300,
     margin = dict(t = 0, b = 0, l = 0),
     )
     return arrests_timeseries
@@ -599,10 +618,11 @@ def create_map(df):
 
 def create_pie(df, choice):
     if choice == 1:
-        pie = px.pie(
-            df, names='Defendant_Race', color='Defendant_Race',
-            color_discrete_map=color_map,
-            )
+        # pie = px.pie(
+        #     df, names='Defendant_Race', color='Defendant_Race',
+        #     color_discrete_map=color_map,
+        #     )
+        pie = px.sunburst(df, path=['Defendant_Race', 'Defendant_Ethnicity'], color_discrete_map=color_map, color = 'Defendant_Race')
         
     elif(choice==2):
         dfg = df[df['Arrest_Category']!= 'Other Crimes'].groupby(['Arrest_Category']).size().to_frame ().sort_values(
@@ -611,6 +631,9 @@ def create_pie(df, choice):
             dfg,names='Arrest_Category', values=0,
             labels={'0':'Count'},color_discrete_sequence=px.colors.qualitative.T10
             )
+        pie.update_traces(
+        textposition = 'inside', 
+        textinfo='percent+label',)
 
     pie.update_layout(
                 {'plot_bgcolor': 'rgba(0, 0, 0, 0)',
@@ -619,9 +642,7 @@ def create_pie(df, choice):
                 showlegend=False,
                 margin = dict(l = 0, r = 0, t = 0, b = 0),
                 )
-    pie.update_traces(
-        textposition = 'inside', 
-        textinfo='percent+label',)
+    
 
     return pie
 
